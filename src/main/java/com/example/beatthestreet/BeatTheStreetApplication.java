@@ -28,7 +28,7 @@ public class BeatTheStreetApplication {
 			executor.setCorePoolSize(3);
 			executor.setMaxPoolSize(3);
 			executor.setQueueCapacity(100);
-			executor.setThreadNamePrefix("AsynchThread-");
+			executor.setThreadNamePrefix("AsyncThread-");
 			executor.initialize();
 			return executor;
 		}
