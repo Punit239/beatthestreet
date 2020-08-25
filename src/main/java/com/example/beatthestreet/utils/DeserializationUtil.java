@@ -1,4 +1,4 @@
-package com.example.demo.util;
+package com.example.beatthestreet.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;

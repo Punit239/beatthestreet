@@ -1,6 +1,6 @@
-package com.example.demo.util;
+package com.example.beatthestreet.utils;
 
-import com.example.demo.DemoApplication;
+import com.example.beatthestreet.BeatTheStreetApplication;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.CookieSpecs;
@@ -20,7 +20,7 @@ import java.util.Optional;
 
 public class HttpClientUtil {
 	
-	public static Optional<CloseableHttpResponse> executeHttpGetRequest(Map<String,String> path, List<NameValuePair> queryParams) {
+	public static Optional<CloseableHttpResponse> executeHttpGetRequest(Map<String, String> path, List<NameValuePair> queryParams) {
 		
 		CloseableHttpClient httpClient = HttpClients.custom()
 				.setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build())
@@ -35,7 +35,7 @@ public class HttpClientUtil {
 		.setParameters(queryParams);
 		try {
 			url = uriBuilder.build().toURL().toString();
-			DemoApplication.logger.info("URL reached : " + url);
+			BeatTheStreetApplication.logger.info("URL reached : " + url);
 			HttpGet getRequest = new HttpGet(uriBuilder.build());
 			getRequest.setHeader("Content-Type", "application/json");
 			response = httpClient.execute(getRequest);
