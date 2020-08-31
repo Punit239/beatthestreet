@@ -3,7 +3,6 @@ package com.example.beatthestreet.dao;
 import com.example.beatthestreet.BeatTheStreetApplication;
 import com.example.beatthestreet.exceptions.EntityDataNotFoundException;
 import com.example.beatthestreet.model.iex.IEXPriceHistory;
-import com.example.beatthestreet.requests.EntityRequest;
 import com.example.beatthestreet.utils.DeserializationUtil;
 import com.example.beatthestreet.utils.HttpClientUtil;
 import org.apache.http.NameValuePair;

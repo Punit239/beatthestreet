@@ -29,12 +29,4 @@ public class EntityData {
     public void setEntityFinancials(EntityFinancials entityFinancials) {
         this.entityFinancials = entityFinancials;
     }
-
-    public enum EntityDataTypes {
-
-        PRICE_HISTORY,
-        ANNUAL_FINANCIALS,
-        QUARTERLY_FINANCIALS,
-        NEWS
-    }
 }

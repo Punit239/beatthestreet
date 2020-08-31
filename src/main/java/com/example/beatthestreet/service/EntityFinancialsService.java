@@ -58,7 +58,7 @@ public class EntityFinancialsService {
     private EntityFinancials convertDaoResponseToEntityResponse(IEXFinancials iexFinancials, EntityRequest entityRequest) {
 
         EntityFinancials entityFinancials = new EntityFinancials();
-        entityFinancials.setSymbol(iexFinancials.getSymbol());
+//        entityFinancials.setSymbol(iexFinancials.getSymbol());
         List<EntityFinancialsRecord> entityFinancialsRecords = new ArrayList<>();
         iexFinancials.getIexFinancialsRecords().stream()
                 .forEach(iexFinancialsRecord -> {

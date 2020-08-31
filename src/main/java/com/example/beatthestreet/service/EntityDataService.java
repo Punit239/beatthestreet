@@ -25,15 +25,15 @@ public class EntityDataService {
 	public String getEntityData(EntityRequest entityRequest) throws Exception {
 
 		EntityData entityData = new EntityData();
-//		CompletableFuture<EntityPriceHistory> entityPriceHistoryCompletableFuture =
-//				entityPriceService.getEntityHistoricalPrices(entityRequest);
-//		CompletableFuture<EntityFinancials> entityFinancialsCompletableFuture =
-//				entityFinancialsService.getEntityFinancials(entityRequest);
+		CompletableFuture<EntityPriceHistory> entityPriceHistoryCompletableFuture =
+				entityPriceService.getEntityHistoricalPrices(entityRequest);
+		CompletableFuture<EntityFinancials> entityFinancialsCompletableFuture =
+				entityFinancialsService.getEntityFinancials(entityRequest);
 		CompletableFuture<EntityNews> entityNewsCompletableFuture =
 				entityNewsService.getEntityNews(entityRequest);
 
-//		entityData.setEntityPriceHistory(entityPriceHistoryCompletableFuture.get());
-//		entityData.setEntityFinancials(entityFinancialsCompletableFuture.get());
+		entityData.setEntityPriceHistory(entityPriceHistoryCompletableFuture.get());
+		entityData.setEntityFinancials(entityFinancialsCompletableFuture.get());
 		entityData.setEntityNews(entityNewsCompletableFuture.get());
 		return mapper.writeValueAsString(entityData);
 	}
