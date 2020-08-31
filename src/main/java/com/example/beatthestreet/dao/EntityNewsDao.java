@@ -2,10 +2,10 @@ package com.example.beatthestreet.dao;
 
 import com.example.beatthestreet.BeatTheStreetApplication;
 import com.example.beatthestreet.exceptions.EntityDataNotFoundException;
-import com.example.beatthestreet.model.iex.IEXNews;
-import com.example.beatthestreet.requests.EntityRequest;
-import com.example.beatthestreet.utils.DeserializationUtil;
+import com.example.beatthestreet.model.iex.IEXNewsRecord;
 import com.example.beatthestreet.utils.HttpClientUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.message.BasicNameValuePair;
@@ -33,39 +33,37 @@ public class EntityNewsDao {
     @Autowired
     private Environment env;
 
-    public Optional<IEXNews> getEntityews(EntityRequest entityRequest) throws EntityDataNotFoundException {
+public Optional<List<IEXNewsRecord>> getEntityews(String entitySymbol) throws EntityDataNotFoundException {
 
-        HashMap<String, String> iexEndPointMap = getIexEndPointMap(entityRequest.getEntitySymbol());
+        HashMap<String, String> iexEndPointMap = getIexEndPointMap(entitySymbol);
         List<NameValuePair> queryParams = getIexNewsEndPointQueryParams();
-        BeatTheStreetApplication.logger.info("Getting news for " + entityRequest.getEntitySymbol() + " .");
+        BeatTheStreetApplication.logger.info("Getting news for " + entitySymbol + " .");
         Optional<CloseableHttpResponse> iexNewsResponse = HttpClientUtil.executeHttpGetRequest(iexEndPointMap, queryParams);
-        IEXNews iexNews = null;
+        List<IEXNewsRecord> iexNewsRecords = null;
         if(iexNewsResponse.isPresent()) {
             int status = iexNewsResponse.get().getStatusLine().getStatusCode();
             if(status == 200) {
                 try {
-                    iexNews = (IEXNews) DeserializationUtil
-                            .deserializeJsonString(EntityUtils.toString(iexNewsResponse.get().getEntity()), IEXNews.class);
+                    iexNewsRecords = new ObjectMapper().readValue(
+                            EntityUtils.toString(iexNewsResponse.get().getEntity()), new TypeReference<List<IEXNewsRecord>>() { });
                 } catch (IOException ioException) {
-                    throw new EntityDataNotFoundException("Unable to retrieve news for " + entityRequest.getEntitySymbol() +
+                    throw new EntityDataNotFoundException("Unable to retrieve news for " + entitySymbol +
                             ". HTTP response cannot be deserialized.");
                 }
             } else {
-                throw new EntityDataNotFoundException("Unable to retrieve news for " + entityRequest.getEntitySymbol() +
+                throw new EntityDataNotFoundException("Unable to retrieve news for " + entitySymbol +
                         ". News request returned with status : " + status);
             }
         } else {
-            throw new EntityDataNotFoundException("Unable to retrieve news for " + entityRequest.getEntitySymbol() +
+            throw new EntityDataNotFoundException("Unable to retrieve news for " + entitySymbol +
                     ". Incorrect HTTP request structure.");
         }
-        return Optional.ofNullable(iexNews);
+        return Optional.ofNullable(iexNewsRecords);
     }
 
     private List<NameValuePair> getIexNewsEndPointQueryParams() {
 
-        List<NameValuePair> queryParams = new ArrayList<NameValuePair>();
-        queryParams.add(new BasicNameValuePair("types", env.getProperty("iex.queryparam.types.news")));
-        queryParams.add(new BasicNameValuePair("last", env.getProperty("iex.queryparam.last")));
+        List<NameValuePair> queryParams = new ArrayList<>();
         queryParams.add(new BasicNameValuePair("token", env.getProperty("iex.api.key")));
         return queryParams;
     }
@@ -75,7 +73,7 @@ public class EntityNewsDao {
         HashMap<String, String> iexEndPointMap = new HashMap<>();
         iexEndPointMap.put("scheme", "https");
         iexEndPointMap.put("host", env.getProperty("iex.host"));
-        iexEndPointMap.put("path", env.getProperty("iex.resource") + "/" + entitySymbol + "/batch");
+        iexEndPointMap.put("path", env.getProperty("iex.resource") + "/" + entitySymbol + "/news/last/" + env.getProperty("iex.queryparam.news.last"));
         return iexEndPointMap;
     }
 }

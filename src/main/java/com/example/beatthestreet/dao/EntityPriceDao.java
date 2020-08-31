@@ -26,11 +26,11 @@ public class EntityPriceDao {
     @Autowired
     private Environment env;
 
-    public Optional<IEXPriceHistory> getEntityPriceHistory(EntityRequest entityRequest) throws EntityDataNotFoundException {
+    public Optional<IEXPriceHistory> getEntityPriceHistory(String entitySymbol) throws EntityDataNotFoundException {
 
-        HashMap<String, String> iexEndPointMap = getIexEndPointMap(entityRequest.getEntitySymbol());
+        HashMap<String, String> iexEndPointMap = getIexEndPointMap(entitySymbol);
         List<NameValuePair> queryParams = getIexEndPointQueryParams();
-        BeatTheStreetApplication.logger.info("Getting price history for " + entityRequest.getEntitySymbol() + " .");
+        BeatTheStreetApplication.logger.info("Getting price history for " + entitySymbol + " .");
         Optional<CloseableHttpResponse> iexPriceHistoryResponse = null;
         iexPriceHistoryResponse = HttpClientUtil.executeHttpGetRequest(iexEndPointMap, queryParams);
         IEXPriceHistory iexPriceHistory = null;
@@ -41,15 +41,15 @@ public class EntityPriceDao {
                     iexPriceHistory = (IEXPriceHistory) DeserializationUtil
                             .deserializeJsonString(EntityUtils.toString(iexPriceHistoryResponse.get().getEntity()), IEXPriceHistory.class);
                 } catch (IOException ioException) {
-                    throw new EntityDataNotFoundException("Unable to retrieve price history for " + entityRequest.getEntitySymbol() +
-                            ". HTTP response cannot be deserialized.");
+                    throw new EntityDataNotFoundException("Unable to retrieve price history for " + entitySymbol +
+                            ". HTTP response cannot be deserialized.\n" + ioException);
                 }
             } else {
-                throw new EntityDataNotFoundException("Unable to retrieve price history for " + entityRequest.getEntitySymbol() +
+                throw new EntityDataNotFoundException("Unable to retrieve price history for " + entitySymbol +
                         ". Price history request returned with status : " + status);
             }
         } else {
-            throw new EntityDataNotFoundException("Unable to retrieve price history for " + entityRequest.getEntitySymbol() +
+            throw new EntityDataNotFoundException("Unable to retrieve price history for " + entitySymbol +
                     ". Incorrect HTTP request structure.");
         }
         return Optional.ofNullable(iexPriceHistory);

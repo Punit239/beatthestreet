@@ -6,9 +6,11 @@ import com.example.beatthestreet.model.entity.EntityPriceHistory;
 import com.example.beatthestreet.model.entity.EntityPriceHistoryRecord;
 import com.example.beatthestreet.model.iex.IEXPriceHistory;
 import com.example.beatthestreet.requests.EntityRequest;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class EntityPriceService {
@@ -24,16 +27,30 @@ public class EntityPriceService {
     @Qualifier("priceDao")
     private EntityPriceDao entityPriceDao;
 
+    private final LoadingCache<String, Optional<IEXPriceHistory>> entityPriceHistoryCache = CacheBuilder
+            .newBuilder()
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public Optional<IEXPriceHistory> load(String entitySymbol) throws EntityDataNotFoundException {
+                            Optional<IEXPriceHistory> iexPriceHistory =
+                                    entityPriceDao.getEntityPriceHistory(entitySymbol);
+                            return iexPriceHistory;
+                        }
+                    });
+
+
     @Async("asyncExecutor")
-    @Cacheable(value = "entityPriceCache", key = "#entityRequest.entitySymbol")
     public CompletableFuture<EntityPriceHistory> getEntityHistoricalPrices(EntityRequest entityRequest) {
 
         Optional<IEXPriceHistory> iexPriceHistory = null;
         EntityPriceHistory entityPriceHistory = null;
         try {
-            iexPriceHistory = entityPriceDao.getEntityPriceHistory(entityRequest);
-            entityPriceHistory = convertDaoResponseToEntityResponse(iexPriceHistory.get());
-        } catch (EntityDataNotFoundException e) {
+            iexPriceHistory = entityPriceHistoryCache.get(entityRequest.getEntitySymbol());
+            if(iexPriceHistory.isPresent()) {
+                entityPriceHistory = convertDaoResponseToEntityResponse(iexPriceHistory.get());
+            }
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return entityPriceHistory == null ? null : CompletableFuture.completedFuture(entityPriceHistory);

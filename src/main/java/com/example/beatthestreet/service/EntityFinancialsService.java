@@ -6,9 +6,11 @@ import com.example.beatthestreet.model.entity.EntityFinancials;
 import com.example.beatthestreet.model.entity.EntityFinancialsRecord;
 import com.example.beatthestreet.model.iex.IEXFinancials;
 import com.example.beatthestreet.requests.EntityRequest;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class EntityFinancialsService {
@@ -24,18 +27,29 @@ public class EntityFinancialsService {
     @Qualifier("financesDao")
     private EntityFinancialsDao entityFinancialsDao;
 
+    private final LoadingCache<EntityRequest, Optional<IEXFinancials>> entityFinancialsCache = CacheBuilder
+            .newBuilder()
+            .build(
+                    new CacheLoader<>() {
+                        @Override
+                        public Optional<IEXFinancials> load(EntityRequest entityRequest) throws EntityDataNotFoundException {
+                            Optional<IEXFinancials> iexFinancials =
+                                    entityFinancialsDao.getFinancialData(entityRequest);
+                            return iexFinancials;
+                        }
+                    });
+
     @Async("asyncExecutor")
-    @Cacheable(value = "entityFinancesCache", key = "#entityRequest.entitySymbol")
     public CompletableFuture<EntityFinancials> getEntityFinancials(EntityRequest entityRequest) {
 
         EntityFinancials entityFinancials = null;
         Optional<IEXFinancials> iexFinancials = null;
         try {
-            iexFinancials = entityFinancialsDao.getFinancialData(entityRequest);
+            iexFinancials = entityFinancialsCache.get(entityRequest);
             if(iexFinancials.isPresent()) {
                 entityFinancials = convertDaoResponseToEntityResponse(iexFinancials.get(), entityRequest);
             }
-        } catch (EntityDataNotFoundException e) {
+        } catch (ExecutionException e) {
             e.printStackTrace();
         }
         return entityFinancials == null ? null : CompletableFuture.completedFuture(entityFinancials);
@@ -52,9 +66,9 @@ public class EntityFinancialsService {
                             entityFinancialsRecord.setFiscalYear(iexFinancialsRecord.getFiscalDate());
                             String formType = null;
                             if(entityRequest.getDataType().equals("annual")) {
-                                formType = "10-K";
+                                formType = "10K";
                             } else if (entityRequest.getDataType().equals("quarter")) {
-                                formType = "10-Q";
+                                formType = "10Q";
                             }
                             entityFinancialsRecord.setFiscalQuarter("4");
                             entityFinancialsRecord.setFormType(formType);

@@ -30,7 +30,7 @@ public class EntityFinancialsDao {
 
         HashMap<String, String> iexFinancialsEndPointMap = getIexFinancialsEndPointMap(entityRequest.getEntitySymbol());
         List<NameValuePair> iexFinancialsQueryParams = getIexFinancialsQueryParams(entityRequest.getDataType());
-        BeatTheStreetApplication.logger.info("Getting financials for " + entityRequest.getEntitySymbol() + " .");
+        BeatTheStreetApplication.logger.info("Getting " + entityRequest.getDataType() + " financials for " + entityRequest.getEntitySymbol() + " .");
         Optional<CloseableHttpResponse> iexFinancialResponse = HttpClientUtil.executeHttpGetRequest(iexFinancialsEndPointMap, iexFinancialsQueryParams);
         IEXFinancials iexFinancials = null;
         if(iexFinancialResponse.isPresent()) {
@@ -62,7 +62,7 @@ public class EntityFinancialsDao {
             queryParams.add(new BasicNameValuePair("period", env.getProperty("iex.queryparam.period.quarter")));
         }
         queryParams.add(new BasicNameValuePair("token", env.getProperty("iex.api.key")));
-        queryParams.add(new BasicNameValuePair("last", env.getProperty("iex.queryparam.last")));
+        queryParams.add(new BasicNameValuePair("last", env.getProperty("iex.queryparam.financials.last")));
         return queryParams;
     }
 
