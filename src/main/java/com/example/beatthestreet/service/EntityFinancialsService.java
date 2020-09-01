@@ -11,6 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EntityFinancialsService {
@@ -26,9 +28,13 @@ public class EntityFinancialsService {
     @Autowired
     @Qualifier("financesDao")
     private EntityFinancialsDao entityFinancialsDao;
+    @Autowired
+    private Environment env;
 
     private final LoadingCache<EntityRequest, Optional<IEXFinancials>> entityFinancialsCache = CacheBuilder
             .newBuilder()
+//            .maximumSize(Long.parseLong(env.getProperty("app.cache.financials.maxsize")))
+//            .expireAfterAccess(Long.parseLong(env.getProperty("app.cache.financials.expire")), TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
@@ -58,7 +64,6 @@ public class EntityFinancialsService {
     private EntityFinancials convertDaoResponseToEntityResponse(IEXFinancials iexFinancials, EntityRequest entityRequest) {
 
         EntityFinancials entityFinancials = new EntityFinancials();
-//        entityFinancials.setSymbol(iexFinancials.getSymbol());
         List<EntityFinancialsRecord> entityFinancialsRecords = new ArrayList<>();
         iexFinancials.getIexFinancialsRecords().stream()
                 .forEach(iexFinancialsRecord -> {

@@ -1,5 +1,10 @@
 package com.example.beatthestreet.requests;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
+@EqualsAndHashCode
+@Getter
 public class EntityRequest {
 	
 	private final String entitySymbol;
@@ -8,33 +13,6 @@ public class EntityRequest {
 	private EntityRequest(EntityRequestBuilder entityRequestBuilder) {
 		this.entitySymbol = entityRequestBuilder.entitySymbol;
 		this.dataType = entityRequestBuilder.dataType;
-	}
-	
-	public String getEntitySymbol() {
-		return entitySymbol;
-	}
-
-	public String getDataType() {
-		return dataType;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-
-		if(o == null) {
-			return false;
-		} else if(o == this) {
-			return true;
-		} else if(o.getClass() != this.getClass()) {
-			return false;
-		}
-		EntityRequest entityRequest = (EntityRequest) o;
-		return this.dataType.equals(entityRequest.dataType) && this.entitySymbol.equals(entityRequest.entitySymbol);
-	}
-
-	@Override
-	public int hashCode() {
-		return this.entitySymbol.hashCode() + this.dataType.hashCode();
 	}
 	
 	public static class EntityRequestBuilder {

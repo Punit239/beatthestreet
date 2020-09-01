@@ -1,32 +1,14 @@
 package com.example.beatthestreet.model.entity;
 
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class EntityData {
 
     private EntityPriceHistory entityPriceHistory;
     private EntityFinancials entityFinancials;
     private EntityNews entityNews;
-
-    public EntityPriceHistory getEntityPriceHistory() {
-        return entityPriceHistory;
-    }
-
-    public void setEntityPriceHistory(EntityPriceHistory entityPriceHistory) {
-        this.entityPriceHistory = entityPriceHistory;
-    }
-
-    public EntityNews getEntityNews() {
-        return entityNews;
-    }
-
-    public void setEntityNews(EntityNews entityNews) {
-        this.entityNews = entityNews;
-    }
-
-    public EntityFinancials getEntityFinancials() {
-        return entityFinancials;
-    }
-
-    public void setEntityFinancials(EntityFinancials entityFinancials) {
-        this.entityFinancials = entityFinancials;
-    }
 }

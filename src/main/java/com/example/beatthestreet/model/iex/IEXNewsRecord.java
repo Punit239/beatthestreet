@@ -2,7 +2,9 @@ package com.example.beatthestreet.model.iex;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class IEXNewsRecord {
 
@@ -24,32 +26,4 @@ public class IEXNewsRecord {
 	private String lang;
 //	@JsonProperty("hasPaywall")
 //	private String hasPaywall;
-	
-	public String getDateTime() {
-		return dateTime;
-	}
-	public String getHeadline() {
-		return headline;
-	}
-	public String getSource() {
-		return source;
-	}
-	public String getUrl() {
-		return url;
-	}
-//	public String getSummary() {
-//		return summary;
-//	}
-//	public String getRelated() {
-//		return related;
-//	}
-//	public String getImage() {
-//		return image;
-//	}
-	public String getLang() {
-		return lang;
-	}
-//	public String getHasPaywall() {
-//		return hasPaywall;
-//	}
 }

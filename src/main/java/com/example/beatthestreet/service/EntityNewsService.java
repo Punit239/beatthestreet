@@ -11,6 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EntityNewsService {
@@ -26,9 +28,13 @@ public class EntityNewsService {
     @Autowired
     @Qualifier("newsDao")
     private EntityNewsDao entityNewsDao;
+    @Autowired
+    private Environment env;
 
     private final LoadingCache<String, Optional<List<IEXNewsRecord>>> entityNewsCache = CacheBuilder
             .newBuilder()
+//            .maximumSize(Long.parseLong(env.getProperty("app.cache.news.maxsize")))
+//            .expireAfterAccess(Long.parseLong(env.getProperty("app.cache.news.expire")), TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override

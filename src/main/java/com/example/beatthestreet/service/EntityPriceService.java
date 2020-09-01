@@ -11,6 +11,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EntityPriceService {
@@ -26,9 +28,14 @@ public class EntityPriceService {
     @Autowired
     @Qualifier("priceDao")
     private EntityPriceDao entityPriceDao;
+    @Autowired
+    private Environment env;
 
     private final LoadingCache<String, Optional<IEXPriceHistory>> entityPriceHistoryCache = CacheBuilder
             .newBuilder()
+//            .maximumSize(Long.parseLong(env.getProperty("app.cache.prices.maxsize")))
+//            .maximumSize(50)
+//            .expireAfterAccess(Long.parseLong(env.getProperty("app.cache.prices.expire")), TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
