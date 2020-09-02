@@ -12,15 +12,12 @@ import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class EntityPriceService {
@@ -46,9 +43,7 @@ public class EntityPriceService {
                         }
                     });
 
-
-    @Async("asyncExecutor")
-    public CompletableFuture<EntityPriceHistory> getEntityHistoricalPrices(EntityRequest entityRequest) {
+    public EntityPriceHistory getEntityHistoricalPrices(EntityRequest entityRequest) {
 
         Optional<IEXPriceHistory> iexPriceHistory = null;
         EntityPriceHistory entityPriceHistory = null;
@@ -60,7 +55,7 @@ public class EntityPriceService {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        return entityPriceHistory == null ? null : CompletableFuture.completedFuture(entityPriceHistory);
+        return entityPriceHistory;
     }
 
     private EntityPriceHistory convertDaoResponseToEntityResponse(IEXPriceHistory iexPriceHistory) {

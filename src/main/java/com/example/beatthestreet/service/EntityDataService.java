@@ -22,19 +22,18 @@ public class EntityDataService {
 	private EntityNewsService entityNewsService;
 	private final ObjectMapper mapper = new ObjectMapper();
 	 
-	public String getEntityData(EntityRequest entityRequest) throws Exception {
+	public EntityData getEntityData(EntityRequest entityRequest) throws Exception {
 
 		EntityData entityData = new EntityData();
 		CompletableFuture<EntityPriceHistory> entityPriceHistoryCompletableFuture =
-				entityPriceService.getEntityHistoricalPrices(entityRequest);
+				CompletableFuture.supplyAsync(() -> entityPriceService.getEntityHistoricalPrices(entityRequest));
 		CompletableFuture<EntityFinancials> entityFinancialsCompletableFuture =
-				entityFinancialsService.getEntityFinancials(entityRequest);
+				CompletableFuture.supplyAsync(() -> entityFinancialsService.getEntityFinancials(entityRequest));
 		CompletableFuture<EntityNews> entityNewsCompletableFuture =
-				entityNewsService.getEntityNews(entityRequest);
-
+				CompletableFuture.supplyAsync(() -> entityNewsService.getEntityNews(entityRequest));
 		entityData.setEntityPriceHistory(entityPriceHistoryCompletableFuture.get());
 		entityData.setEntityFinancials(entityFinancialsCompletableFuture.get());
 		entityData.setEntityNews(entityNewsCompletableFuture.get());
-		return mapper.writeValueAsString(entityData);
+		return entityData;
 	}
 }

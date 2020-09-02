@@ -45,8 +45,7 @@ public class EntityNewsService {
                         }
                     });
 
-    @Async("asyncExecutor")
-    public CompletableFuture<EntityNews> getEntityNews(EntityRequest entityRequest) {
+    public EntityNews getEntityNews(EntityRequest entityRequest) {
 
         EntityNews entityNews = null;
         Optional<List<IEXNewsRecord>> iexNewsRecords = null;
@@ -58,7 +57,7 @@ public class EntityNewsService {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        return entityNews == null ? null : CompletableFuture.completedFuture(entityNews);
+        return entityNews;
     }
 
     private EntityNews convertResponseToEntityResponse(List<IEXNewsRecord> iexNewsRecords) {

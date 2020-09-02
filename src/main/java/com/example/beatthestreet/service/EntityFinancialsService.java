@@ -45,8 +45,7 @@ public class EntityFinancialsService {
                         }
                     });
 
-    @Async("asyncExecutor")
-    public CompletableFuture<EntityFinancials> getEntityFinancials(EntityRequest entityRequest) {
+    public EntityFinancials getEntityFinancials(EntityRequest entityRequest) {
 
         EntityFinancials entityFinancials = null;
         Optional<IEXFinancials> iexFinancials = null;
@@ -58,7 +57,7 @@ public class EntityFinancialsService {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
-        return entityFinancials == null ? null : CompletableFuture.completedFuture(entityFinancials);
+        return entityFinancials;
     }
 
     private EntityFinancials convertDaoResponseToEntityResponse(IEXFinancials iexFinancials, EntityRequest entityRequest) {
