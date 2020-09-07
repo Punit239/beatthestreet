@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IEXPriceHistoryRecord {
+public class IexPriceHistoryRecord {
 
 	@JsonProperty(value = "date")
 	private String date;

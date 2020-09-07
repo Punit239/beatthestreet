@@ -8,10 +8,10 @@ import java.util.List;
 
 @Getter
 @Setter
-public class IEXFinancials {
+public class IexFinancials {
 
 	@JsonProperty("symbol")
 	private String symbol;
 	@JsonProperty("financials")
-	private List<IEXFinancialsRecord> iexFinancialsRecords;
+	private List<IexFinancialsRecord> iexFinancialsRecords;
 }

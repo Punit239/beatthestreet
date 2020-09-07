@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class IEXFinancialsRecord {
+public class IexFinancialsRecord {
 
     @JsonProperty("fiscalDate")
     private String fiscalDate;

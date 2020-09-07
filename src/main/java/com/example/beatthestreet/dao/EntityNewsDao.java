@@ -2,7 +2,7 @@ package com.example.beatthestreet.dao;
 
 import com.example.beatthestreet.BeatTheStreetApplication;
 import com.example.beatthestreet.exceptions.EntityDataNotFoundException;
-import com.example.beatthestreet.model.iex.IEXNewsRecord;
+import com.example.beatthestreet.model.iex.IexNewsRecord;
 import com.example.beatthestreet.utils.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,19 +33,19 @@ public class EntityNewsDao {
     @Autowired
     private Environment env;
 
-public Optional<List<IEXNewsRecord>> getEntityews(String entitySymbol) throws EntityDataNotFoundException {
+public Optional<List<IexNewsRecord>> getEntityews(String entitySymbol) throws EntityDataNotFoundException {
 
         HashMap<String, String> iexEndPointMap = getIexEndPointMap(entitySymbol);
         List<NameValuePair> queryParams = getIexNewsEndPointQueryParams();
         BeatTheStreetApplication.logger.info("Getting news for " + entitySymbol + " .");
         Optional<CloseableHttpResponse> iexNewsResponse = HttpClientUtil.executeHttpGetRequest(iexEndPointMap, queryParams);
-        List<IEXNewsRecord> iexNewsRecords = null;
+        List<IexNewsRecord> iexNewsRecords = null;
         if(iexNewsResponse.isPresent()) {
             int status = iexNewsResponse.get().getStatusLine().getStatusCode();
             if(status == 200) {
                 try {
                     iexNewsRecords = new ObjectMapper().readValue(
-                            EntityUtils.toString(iexNewsResponse.get().getEntity()), new TypeReference<List<IEXNewsRecord>>() { });
+                            EntityUtils.toString(iexNewsResponse.get().getEntity()), new TypeReference<List<IexNewsRecord>>() { });
                 } catch (IOException ioException) {
                     throw new EntityDataNotFoundException("Unable to retrieve news for " + entitySymbol +
                             ". HTTP response cannot be deserialized.");

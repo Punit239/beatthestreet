@@ -2,7 +2,7 @@ package com.example.beatthestreet.dao;
 
 import com.example.beatthestreet.BeatTheStreetApplication;
 import com.example.beatthestreet.exceptions.EntityDataNotFoundException;
-import com.example.beatthestreet.model.iex.IEXFinancials;
+import com.example.beatthestreet.model.iex.IexFinancials;
 import com.example.beatthestreet.requests.EntityRequest;
 import com.example.beatthestreet.utils.DeserializationUtil;
 import com.example.beatthestreet.utils.HttpClientUtil;
@@ -26,19 +26,19 @@ public class EntityFinancialsDao {
     @Autowired
     private Environment env;
 
-    public Optional<IEXFinancials> getFinancialData(EntityRequest entityRequest) throws EntityDataNotFoundException {
+    public Optional<IexFinancials> getFinancialData(EntityRequest entityRequest) throws EntityDataNotFoundException {
 
         HashMap<String, String> iexFinancialsEndPointMap = getIexFinancialsEndPointMap(entityRequest.getEntitySymbol());
-        List<NameValuePair> iexFinancialsQueryParams = getIexFinancialsQueryParams(entityRequest.getDataType());
-        BeatTheStreetApplication.logger.info("Getting " + entityRequest.getDataType() + " financials for " + entityRequest.getEntitySymbol() + " .");
+        List<NameValuePair> iexFinancialsQueryParams = getIexFinancialsQueryParams(entityRequest.getPeriod());
+        BeatTheStreetApplication.logger.info("Getting " + entityRequest.getPeriod() + " financials for " + entityRequest.getEntitySymbol() + " .");
         Optional<CloseableHttpResponse> iexFinancialResponse = HttpClientUtil.executeHttpGetRequest(iexFinancialsEndPointMap, iexFinancialsQueryParams);
-        IEXFinancials iexFinancials = null;
+        IexFinancials iexFinancials;
         if(iexFinancialResponse.isPresent()) {
             int status = iexFinancialResponse.get().getStatusLine().getStatusCode();
             if(status == 200) {
                 try {
-                    iexFinancials = (IEXFinancials) DeserializationUtil
-                            .deserializeJsonString(EntityUtils.toString(iexFinancialResponse.get().getEntity()), IEXFinancials.class);
+                    iexFinancials = (IexFinancials) DeserializationUtil
+                            .deserializeJsonString(EntityUtils.toString(iexFinancialResponse.get().getEntity()), IexFinancials.class);
                 } catch (IOException ioException) {
                     throw new EntityDataNotFoundException("Unable to retrieve financials for " + entityRequest.getEntitySymbol() +
                             ". HTTP response cannot be deserialized.");
@@ -62,6 +62,7 @@ public class EntityFinancialsDao {
             queryParams.add(new BasicNameValuePair("period", env.getProperty("iex.queryparam.period.quarter")));
         }
         queryParams.add(new BasicNameValuePair("token", env.getProperty("iex.api.key")));
+        queryParams.add(new BasicNameValuePair("filter", env.getProperty("iex.queryparam.financials.filter")));
         queryParams.add(new BasicNameValuePair("last", env.getProperty("iex.queryparam.financials.last")));
         return queryParams;
     }

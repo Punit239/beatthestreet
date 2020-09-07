@@ -4,7 +4,7 @@ import com.example.beatthestreet.dao.EntityFinancialsDao;
 import com.example.beatthestreet.exceptions.EntityDataNotFoundException;
 import com.example.beatthestreet.model.entity.EntityFinancials;
 import com.example.beatthestreet.model.entity.EntityFinancialsRecord;
-import com.example.beatthestreet.model.iex.IEXFinancials;
+import com.example.beatthestreet.model.iex.IexFinancials;
 import com.example.beatthestreet.requests.EntityRequest;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -12,13 +12,11 @@ import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -31,15 +29,17 @@ public class EntityFinancialsService {
     @Autowired
     private Environment env;
 
-    private final LoadingCache<EntityRequest, Optional<IEXFinancials>> entityFinancialsCache = CacheBuilder
+    private final LoadingCache<EntityRequest, Optional<IexFinancials>> entityFinancialsCache = CacheBuilder
             .newBuilder()
 //            .maximumSize(Long.parseLong(env.getProperty("app.cache.financials.maxsize")))
 //            .expireAfterAccess(Long.parseLong(env.getProperty("app.cache.financials.expire")), TimeUnit.SECONDS)
+            .maximumSize(50)
+            .expireAfterAccess(600, TimeUnit.SECONDS)
             .build(
                     new CacheLoader<>() {
                         @Override
-                        public Optional<IEXFinancials> load(EntityRequest entityRequest) throws EntityDataNotFoundException {
-                            Optional<IEXFinancials> iexFinancials =
+                        public Optional<IexFinancials> load(EntityRequest entityRequest) throws EntityDataNotFoundException {
+                            Optional<IexFinancials> iexFinancials =
                                     entityFinancialsDao.getFinancialData(entityRequest);
                             return iexFinancials;
                         }
@@ -48,7 +48,7 @@ public class EntityFinancialsService {
     public EntityFinancials getEntityFinancials(EntityRequest entityRequest) {
 
         EntityFinancials entityFinancials = null;
-        Optional<IEXFinancials> iexFinancials = null;
+        Optional<IexFinancials> iexFinancials = null;
         try {
             iexFinancials = entityFinancialsCache.get(entityRequest);
             if(iexFinancials.isPresent()) {
@@ -60,7 +60,7 @@ public class EntityFinancialsService {
         return entityFinancials;
     }
 
-    private EntityFinancials convertDaoResponseToEntityResponse(IEXFinancials iexFinancials, EntityRequest entityRequest) {
+    private EntityFinancials convertDaoResponseToEntityResponse(IexFinancials iexFinancials, EntityRequest entityRequest) {
 
         EntityFinancials entityFinancials = new EntityFinancials();
         List<EntityFinancialsRecord> entityFinancialsRecords = new ArrayList<>();
@@ -69,9 +69,9 @@ public class EntityFinancialsService {
                             EntityFinancialsRecord entityFinancialsRecord = new EntityFinancialsRecord();
                             entityFinancialsRecord.setFiscalYear(iexFinancialsRecord.getFiscalDate());
                             String formType = null;
-                            if(entityRequest.getDataType().equals("annual")) {
+                            if(entityRequest.getPeriod().equals("annual")) {
                                 formType = "10K";
-                            } else if (entityRequest.getDataType().equals("quarter")) {
+                            } else if (entityRequest.getPeriod().equals("quarter")) {
                                 formType = "10Q";
                             }
                             entityFinancialsRecord.setFiscalQuarter("4");

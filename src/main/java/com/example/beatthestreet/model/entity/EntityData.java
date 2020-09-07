@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class EntityData {
 
+    private EntityLatestPriceInfo entityLatestPriceInfo;
     private EntityPriceHistory entityPriceHistory;
-    private EntityFinancials entityFinancials;
     private EntityNews entityNews;
 }
